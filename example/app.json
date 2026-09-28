@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "SUQO SDK example",
+    "slug": "suqo-react-native-example",
+    "scheme": "suqoexample",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": { "bundleIdentifier": "ai.suqo.sdkexample", "supportsTablet": true },
+    "android": { "package": "ai.suqo.sdkexample", "edgeToEdgeEnabled": true },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}

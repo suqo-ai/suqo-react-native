@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    // The test suite renders against the stubs in `test/stubs`, so it must be typechecked
+    // against them too — otherwise `tsc` and vitest disagree about what `react-native` is,
+    // and the suite fails to compile while passing at runtime. `tsconfig.json` keeps `src`
+    // pointed at the real packages, which is what the published types are checked against.
+    "paths": {
+      "react-native": ["./test/stubs/react-native.tsx"],
+      "react-native-webview": ["./test/stubs/react-native-webview.tsx"]
+    }
+  },
+  "include": ["test"]
+}

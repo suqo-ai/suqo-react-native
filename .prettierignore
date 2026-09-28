@@ -1,0 +1,6 @@
+dist
+node_modules
+example/node_modules
+example/.expo
+example/expo-env.d.ts
+tools/
