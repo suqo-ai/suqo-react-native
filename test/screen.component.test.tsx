@@ -378,3 +378,45 @@ describe('load deadlines', () => {
     expect(onClose).not.toHaveBeenCalled()
   })
 })
+
+describe('the loading state', () => {
+  /** The spinner the loading state renders, if it is on screen at all. */
+  const spinner = () => {
+    if (!tree) throw new Error('nothing mounted')
+    return tree.root.findAll((node) => String(node.type) === 'ActivityIndicator', {
+      deep: true,
+    })[0]
+  }
+
+  /** The View the spinner sits in, i.e. the loading overlay itself. */
+  const overlayStyle = () => {
+    if (!tree) throw new Error('nothing mounted')
+    const view = tree.root.findAll(
+      (node) =>
+        String(node.type) === 'View' &&
+        (node.props as { style?: { position?: string } }).style?.position === 'absolute',
+      { deep: true }
+    )[0]
+    return view?.props.style as Record<string, unknown> | undefined
+  }
+
+  it('covers the whole screen while the page loads', () => {
+    mount()
+
+    const style = overlayStyle()
+
+    // Written out rather than asserted as "absoluteFillObject", because that spread is
+    // exactly what failed: with only `position: 'absolute'` reaching the native side the
+    // overlay lays out as a strip at the foot of the screen, the page shows through above
+    // it, and the spinner reads as a stray artefact sitting under the payment block.
+    expect(style).toMatchObject({ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 })
+  })
+
+  it('is gone once the block reports ready', () => {
+    mount()
+    post({ type: 'suqo:alive' })
+    post({ type: 'suqo:ready' })
+
+    expect(spinner()).toBeUndefined()
+  })
+})

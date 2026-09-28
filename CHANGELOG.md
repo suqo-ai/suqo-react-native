@@ -6,6 +6,18 @@ All notable changes to `@suqo/react-native` are documented here. The format foll
 
 ## [Unreleased]
 
+### Fixed
+
+- The loading state now covers the page it is loading. Its edges were spread from
+  `StyleSheet.absoluteFillObject`, which resolves to nothing in the published bundle, so the
+  overlay laid out as a strip at the foot of the screen: the buyer saw the checkout's own
+  skeleton with a stray spinner under it instead of a loading screen.
+
+### Changed
+
+- The loading state shows a large spinner and a "Loading secure checkout" line, rather than a
+  bare small spinner.
+
 ## [0.2.0]
 
 Keyed on checkout sessions instead of subscriptions. Every caller changes.

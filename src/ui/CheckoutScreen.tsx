@@ -6,6 +6,7 @@ import {
   Easing,
   Modal,
   StyleSheet,
+  Text,
   View,
 } from 'react-native'
 
@@ -303,7 +304,8 @@ export function CheckoutScreen({
 
           {phase === 'loading' ? (
             <View style={styles.overlay}>
-              <ActivityIndicator color={theme.color.primary} />
+              <ActivityIndicator size="large" color={theme.color.primary} />
+              <Text style={styles.loadingLabel}>Loading secure checkout</Text>
             </View>
           ) : null}
 
@@ -333,10 +335,24 @@ const styles = StyleSheet.create({
   // never hidden, resized by phase, or wrapped in a changing parent — any of those remounts
   // it, and a remount reloads the gateway page underneath the buyer.
   body: { flex: 1 },
+  // The edges are written out rather than spread from `StyleSheet.absoluteFillObject`: the
+  // spread resolves to nothing in this package's bundle, and the overlay then lays out as an
+  // ordinary flex child — a 71pt strip at the foot of the screen. The symptom is the one a
+  // buyer sees: the page's own skeleton on screen with a stray spinner poking out below it,
+  // instead of a loading state covering the page until it is ready.
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: theme.color.surface,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loadingLabel: {
+    marginTop: theme.space.lg,
+    color: theme.color.muted,
+    fontSize: 14,
   },
 })
