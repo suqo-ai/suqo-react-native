@@ -81,8 +81,8 @@ export default function Home() {
       </View>
 
       <Text style={{ color: '#667080', fontSize: 12 }}>
-        No backend? Run `npm run mock` in the example folder and paste the LAN address it prints as
-        the base URL.
+        No backend? Run `npm run mock` in the example folder — the base URL above already points at
+        it, on whichever address this device can reach.
       </Text>
     </ScrollView>
   )
