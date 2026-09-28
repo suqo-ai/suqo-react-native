@@ -13,10 +13,14 @@ All notable changes to `@suqo/react-native` are documented here. The format foll
   overlay laid out as a strip at the foot of the screen: the buyer saw the checkout's own
   skeleton with a stray spinner under it instead of a loading screen.
 
+### Added
+
+- `loadingLabel` on `SuqoProvider` — the line under the spinner while the page loads. Defaults
+  to `Loading secure checkout`; pass `''` for a spinner on its own.
+
 ### Changed
 
-- The loading state shows a large spinner and a "Loading secure checkout" line, rather than a
-  bare small spinner.
+- The loading state shows a large spinner and a line of copy, rather than a bare small spinner.
 
 ## [0.2.0]
 

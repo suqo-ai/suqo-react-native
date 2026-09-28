@@ -112,14 +112,15 @@ plainly here.
 
 ## Options
 
-| Prop           | Default          | Notes                                                         |
-| -------------- | ---------------- | ------------------------------------------------------------- |
-| `baseUrl`      | —                | Required. Where SUQO's checkout is served from.               |
-| `checkoutPath` | `/c/:id`         | The route, with `:id` for the checkout session id.            |
-| `title`        | `Secure payment` | Sheet header. The amount and seller are rendered by the page. |
-| `insets`       | measured         | See below.                                                    |
-| `debug`        | `false`          | Turns on this package's redacted console logging.             |
-| `onEvent`      | —                | A debug stream for your own logs. Not a payment signal.       |
+| Prop            | Default                    | Notes                                                         |
+| --------------- | -------------------------- | ------------------------------------------------------------- |
+| `baseUrl`       | —                          | Required. Where SUQO's checkout is served from.               |
+| `checkoutPath`  | `/c/:id`                   | The route, with `:id` for the checkout session id.            |
+| `title`         | `Secure payment`           | Sheet header. The amount and seller are rendered by the page. |
+| `loadingLabel`  | `Loading secure checkout`  | The line under the spinner. Pass `''` for a spinner alone.    |
+| `insets`        | measured                   | See below.                                                    |
+| `debug`         | `false`                    | Turns on this package's redacted console logging.             |
+| `onEvent`       | —                          | A debug stream for your own logs. Not a payment signal.       |
 
 ### Safe-area insets — pass them if you can
 

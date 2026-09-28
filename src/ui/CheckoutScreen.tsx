@@ -42,6 +42,8 @@ interface Props {
   session: CheckoutSession | null
   url: string
   title: string
+  /** The line under the spinner while the page loads. */
+  loadingLabel: string
   insets?: SuqoInsets
   onEvent?: (event: SuqoEvent) => void
   /** Forwards the page's own errors and requests to the console. */
@@ -64,6 +66,7 @@ export function CheckoutScreen({
   session,
   url,
   title,
+  loadingLabel,
   insets,
   onEvent,
   debug,
@@ -305,7 +308,7 @@ export function CheckoutScreen({
           {phase === 'loading' ? (
             <View style={styles.overlay}>
               <ActivityIndicator size="large" color={theme.color.primary} />
-              <Text style={styles.loadingLabel}>Loading secure checkout</Text>
+              {loadingLabel ? <Text style={styles.loadingLabel}>{loadingLabel}</Text> : null}
             </View>
           ) : null}
 

@@ -35,7 +35,7 @@ let tree: ReactTestRenderer | null = null
 /** Mounts a provider whose child opens a checkout immediately. */
 function mount(
   options: Partial<SuqoCheckoutOptions> = {},
-  providerProps: { onEvent?: (event: SuqoEvent) => void } = {}
+  providerProps: { onEvent?: (event: SuqoEvent) => void; loadingLabel?: string } = {}
 ): Promise<SuqoOutcome> {
   let promise!: Promise<SuqoOutcome>
 
@@ -388,17 +388,24 @@ describe('the loading state', () => {
     })[0]
   }
 
-  /** The View the spinner sits in, i.e. the loading overlay itself. */
-  const overlayStyle = () => {
+  /** The overlay View the spinner and its label sit in. */
+  const overlay = () => {
     if (!tree) throw new Error('nothing mounted')
-    const view = tree.root.findAll(
+    return tree.root.findAll(
       (node) =>
         String(node.type) === 'View' &&
         (node.props as { style?: { position?: string } }).style?.position === 'absolute',
       { deep: true }
     )[0]
-    return view?.props.style as Record<string, unknown> | undefined
   }
+
+  const overlayStyle = () => overlay()?.props.style as Record<string, unknown> | undefined
+
+  /** Every line of copy the loading state renders. */
+  const labels = () =>
+    overlay()
+      ?.findAll((node) => String(node.type) === 'Text', { deep: true })
+      .map((node) => node.children.join('')) ?? []
 
   it('covers the whole screen while the page loads', () => {
     mount()
@@ -410,6 +417,21 @@ describe('the loading state', () => {
     // overlay lays out as a strip at the foot of the screen, the page shows through above
     // it, and the spinner reads as a stray artefact sitting under the payment block.
     expect(style).toMatchObject({ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 })
+  })
+
+  it('labels the spinner, and takes the wording from the provider', () => {
+    mount({}, { loadingLabel: 'Kripaya pratiksha garnuhos' })
+
+    expect(labels()).toEqual(['Kripaya pratiksha garnuhos'])
+  })
+
+  it('renders the spinner alone when the label is blank', () => {
+    mount({}, { loadingLabel: '' })
+
+    // An empty string is a host asking for no copy, not a host forgetting to pass any — the
+    // default is what covers that. Rendering it would draw an empty line under the spinner.
+    expect(spinner()).toBeDefined()
+    expect(labels()).toEqual([])
   })
 
   it('is gone once the block reports ready', () => {

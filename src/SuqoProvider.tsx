@@ -22,6 +22,14 @@ export interface SuqoProviderProps {
   /** Screen header title. The amount and the seller are rendered by the page, not here. */
   title?: string
   /**
+   * The line under the spinner while the page loads.
+   *
+   * Separate from `title` because it is the one piece of copy a buyer reads before anything
+   * of the seller's is on screen, and an app with its own voice — or its own language — has
+   * nothing else to change it with.
+   */
+  loadingLabel?: string
+  /**
    * Exact safe-area insets.
    *
    * Recommended for any app that already has `react-native-safe-area-context`. Without it
@@ -68,6 +76,7 @@ export function SuqoProvider({
   baseUrl,
   checkoutPath = DEFAULT_CHECKOUT_PATH,
   title = 'Secure payment',
+  loadingLabel = 'Loading secure checkout',
   insets,
   debug = false,
   onEvent,
@@ -137,6 +146,7 @@ export function SuqoProvider({
         session={active?.session ?? null}
         url={active?.url ?? ''}
         title={title}
+        loadingLabel={loadingLabel}
         debug={debug}
         closeSignal={closeSignal}
         {...(insets ? { insets } : {})}
