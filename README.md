@@ -153,7 +153,8 @@ app opens over yours. Coming back leaves the screen exactly as it was, mid-payme
 
 ## Requirements on the SUQO web app
 
-This package is one half of a protocol; `js-checkout/PROTOCOL.md` is the contract. The page at
+This package is one half of a protocol; `js-checkout/docs/protocol.md` is the contract. The
+page at
 `/c/<sessionId>` must:
 
 - recognise a native host and route its messages through the injected bridge — it checks for
