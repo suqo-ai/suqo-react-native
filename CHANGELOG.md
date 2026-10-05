@@ -6,6 +6,13 @@ All notable changes to `@suqo/react-native` are documented here. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- `mode` prop on `SuqoProvider`: `'live'` resolves to `app.suqo.ai`, `'sandbox'` (the default)
+  to `test.suqo.ai`. `baseUrl` is now optional and still overrides it when set.
+- `LIVE_ORIGIN`, `SANDBOX_ORIGIN`, `resolveBaseUrl` and the `CheckoutMode` type, exported
+  alongside the existing `DEFAULT_CHECKOUT_PATH`.
+
 ### Fixed
 
 - The loading state now covers the page it is loading. Its edges were spread from

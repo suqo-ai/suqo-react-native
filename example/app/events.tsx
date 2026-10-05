@@ -13,7 +13,7 @@ export default function Events() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Button title="Clear" variant="secondary" onPress={clear} />
       {entries.length === 0 ? (
-        <Text style={{ color: '#667080' }}>Nothing yet. Start a payment.</Text>
+        <Text style={{ color: '#8A929A' }}>Nothing yet. Start a payment.</Text>
       ) : (
         entries.map((entry, index) => (
           <View key={`${entry.at}-${index}`}>

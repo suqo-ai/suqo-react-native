@@ -6,12 +6,15 @@ import { setDebug } from './log'
 import type { CheckoutSession } from './session'
 import { createSession } from './session'
 import type { SuqoCheckoutOptions, SuqoEvent, SuqoInsets, SuqoOutcome } from './types'
-import { buildCheckoutUrl, DEFAULT_CHECKOUT_PATH } from './urls'
+import { buildCheckoutUrl, DEFAULT_CHECKOUT_PATH, resolveBaseUrl } from './urls'
+import type { CheckoutMode } from './urls'
 import { CheckoutScreen } from './ui/CheckoutScreen'
 
 export interface SuqoProviderProps {
-  /** Where the SUQO checkout is served from, e.g. `https://test.suqo.ai`. */
-  baseUrl: string
+  /** `'live'` → `app.suqo.ai`, `'sandbox'` → `test.suqo.ai`. Defaults to `'sandbox'`. */
+  mode?: CheckoutMode
+  /** Where the SUQO checkout is served from, e.g. `https://test.suqo.ai`. Overrides `mode`. */
+  baseUrl?: string
   /**
    * The checkout route, with `:id` standing in for the subscription id.
    *
@@ -73,6 +76,7 @@ interface ActiveCheckout {
  * scoped, short-lived payment token — so nothing long-lived reaches the app bundle.
  */
 export function SuqoProvider({
+  mode,
   baseUrl,
   checkoutPath = DEFAULT_CHECKOUT_PATH,
   title = 'Secure payment',
@@ -114,7 +118,7 @@ export function SuqoProvider({
       try {
         next = {
           session: createSession(options, onEvent),
-          url: buildCheckoutUrl(baseUrl, options.sessionId, checkoutPath),
+          url: buildCheckoutUrl(resolveBaseUrl(baseUrl, mode), options.sessionId, checkoutPath),
         }
       } catch (error) {
         return Promise.reject(error)
@@ -124,7 +128,7 @@ export function SuqoProvider({
       setActive(next)
       return next.session.promise
     },
-    [baseUrl, checkoutPath, onEvent]
+    [baseUrl, mode, checkoutPath, onEvent]
   )
 
   const close = useCallback(() => {

@@ -5,7 +5,7 @@
     "scheme": "suqoexample",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": { "bundleIdentifier": "ai.suqo.sdkexample", "supportsTablet": true },
     "android": { "package": "ai.suqo.sdkexample", "edgeToEdgeEnabled": true },

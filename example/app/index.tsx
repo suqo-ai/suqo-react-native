@@ -1,13 +1,13 @@
 import { Link } from 'expo-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ScrollView, Text, View } from 'react-native'
 
-import { useSuqoCheckout } from '@suqo/react-native'
+import { resolveBaseUrl, useSuqoCheckout } from '@suqo/react-native'
 
 import { useBaseUrl } from '../src/base-url'
 import { DEFAULT_SESSION_ID } from '../src/config'
 import { useEventLog } from '../src/EventLog'
-import { Button, Field, Mono, Panel, styles } from '../src/ui'
+import { Button, Field, LiveBanner, Mono, ModeSwitch, Panel, StatusLine, styles } from '../src/ui'
 
 /**
  * The callback form: one of onSuccess / onFailure / onClose fires, and the screen shows
@@ -15,12 +15,17 @@ import { Button, Field, Mono, Panel, styles } from '../src/ui'
  */
 export default function Home() {
   const { open } = useSuqoCheckout()
-  const { baseUrl, setBaseUrl } = useBaseUrl()
+  const { mode, setMode, override, setOverride } = useBaseUrl()
   const { push } = useEventLog()
 
   const [sessionId, setSessionId] = useState(DEFAULT_SESSION_ID)
   const [last, setLast] = useState<{ callback: string; detail: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const resolvedBaseUrl = useMemo(
+    () => resolveBaseUrl(override.trim() === '' ? undefined : override, mode),
+    [override, mode]
+  )
 
   const record = (callback: string, detail: unknown) => {
     setLast({ callback, detail: JSON.stringify(detail, null, 2) })
@@ -54,7 +59,21 @@ export default function Home() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Field label="Base URL" value={baseUrl} onChangeText={setBaseUrl} />
+      {mode === 'live' && override.trim() === '' ? <LiveBanner /> : null}
+
+      <View style={{ gap: 8 }}>
+        <Text style={styles.label}>Mode</Text>
+        <ModeSwitch value={mode} onChange={setMode} />
+      </View>
+
+      <Field
+        label="Base URL override"
+        value={override}
+        onChangeText={setOverride}
+        placeholder={`empty = ${mode} origin`}
+      />
+      <StatusLine label={`resolved: ${resolvedBaseUrl}`} danger={mode === 'live'} />
+
       <Field label="Checkout session id" value={sessionId} onChangeText={setSessionId} />
 
       <Button title="Pay" onPress={pay} />
@@ -80,9 +99,9 @@ export default function Home() {
         </Link>
       </View>
 
-      <Text style={{ color: '#667080', fontSize: 12 }}>
-        No backend? Run `npm run mock` in the example folder — the base URL above already points at
-        it, on whichever address this device can reach.
+      <Text style={{ color: '#8A929A', fontSize: 12 }}>
+        No backend? Run `npm run mock` in the example folder, then clear the override above —
+        it already points at the mock server, on whichever address this device can reach.
       </Text>
     </ScrollView>
   )

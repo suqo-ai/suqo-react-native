@@ -14,6 +14,32 @@ import { SuqoConfigError } from './errors'
  */
 export const DEFAULT_CHECKOUT_PATH = '/c/:id'
 
+/** Where a live checkout is served from. */
+export const LIVE_ORIGIN = 'https://app.suqo.ai'
+
+/** Where a sandbox checkout is served from. */
+export const SANDBOX_ORIGIN = 'https://test.suqo.ai'
+
+/** The two checkout environments a merchant can pick between without naming a URL. */
+export type CheckoutMode = 'live' | 'sandbox'
+
+function originForMode(mode: CheckoutMode | undefined): string {
+  return mode === 'live' ? LIVE_ORIGIN : SANDBOX_ORIGIN
+}
+
+/**
+ * Resolves the base URL `{@link buildCheckoutUrl}` loads.
+ *
+ * An explicit `baseUrl` always wins — it is how an app points at something other than
+ * `app.suqo.ai` / `test.suqo.ai` (a staging mirror, a local mock server). Otherwise `mode`
+ * picks between {@link LIVE_ORIGIN} and {@link SANDBOX_ORIGIN}, defaulting to sandbox so an
+ * app that names neither cannot accidentally take a live payment.
+ */
+export function resolveBaseUrl(baseUrl: string | undefined, mode?: CheckoutMode): string {
+  if (typeof baseUrl === 'string' && baseUrl.trim() !== '') return baseUrl
+  return originForMode(mode)
+}
+
 /**
  * The URL the sheet loads.
  *

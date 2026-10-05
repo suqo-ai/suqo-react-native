@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ScrollView } from 'react-native'
 
-import { useSuqoCheckout } from '@suqo/react-native'
+import { resolveBaseUrl, useSuqoCheckout } from '@suqo/react-native'
 
 import { useBaseUrl } from '../src/base-url'
 import { DEFAULT_SESSION_ID } from '../src/config'
@@ -13,7 +13,11 @@ import { Button, Field, Mono, Panel, styles } from '../src/ui'
  */
 export default function AwaitScreen() {
   const { open } = useSuqoCheckout()
-  const { baseUrl } = useBaseUrl()
+  const { mode, override } = useBaseUrl()
+  const resolvedBaseUrl = useMemo(
+    () => resolveBaseUrl(override.trim() === '' ? undefined : override, mode),
+    [override, mode]
+  )
   const [sessionId, setSubscriptionId] = useState(DEFAULT_SESSION_ID)
   const [outcome, setOutcome] = useState<string | null>(null)
 
@@ -30,7 +34,7 @@ export default function AwaitScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Panel title="Base URL">
-        <Mono>{baseUrl}</Mono>
+        <Mono>{resolvedBaseUrl}</Mono>
       </Panel>
       <Field label="Subscription id" value={sessionId} onChangeText={setSubscriptionId} />
       <Button title="await open()" onPress={pay} />

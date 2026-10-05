@@ -12,7 +12,8 @@ export { SuqoProvider } from './SuqoProvider'
 export type { SuqoProviderProps, SuqoCheckoutHandle } from './SuqoProvider'
 export { useSuqoCheckout } from './useSuqoCheckout'
 export { SuqoConfigError } from './errors'
-export { DEFAULT_CHECKOUT_PATH } from './urls'
+export { DEFAULT_CHECKOUT_PATH, LIVE_ORIGIN, SANDBOX_ORIGIN, resolveBaseUrl } from './urls'
+export type { CheckoutMode } from './urls'
 export type {
   ReturnParams,
   SuqoCheckoutOptions,

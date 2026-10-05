@@ -32,12 +32,15 @@ import { SuqoProvider } from '@suqo/react-native'
 
 export default function App() {
   return (
-    <SuqoProvider baseUrl="https://test.suqo.ai">
+    <SuqoProvider mode="sandbox">
       <Navigation />
     </SuqoProvider>
   )
 }
 ```
+
+`mode="live"` points at `app.suqo.ai` instead. Pass `baseUrl` to go somewhere else entirely — a
+staging mirror, a local mock server — it overrides `mode` when set.
 
 Then open a payment from anywhere below it:
 
@@ -114,7 +117,8 @@ plainly here.
 
 | Prop            | Default                    | Notes                                                         |
 | --------------- | -------------------------- | ------------------------------------------------------------- |
-| `baseUrl`       | —                          | Required. Where SUQO's checkout is served from.               |
+| `mode`          | `'sandbox'`                | `'live'` → `app.suqo.ai`, `'sandbox'` → `test.suqo.ai`.        |
+| `baseUrl`       | —                          | Where SUQO's checkout is served from. Overrides `mode`.        |
 | `checkoutPath`  | `/c/:id`                   | The route, with `:id` for the checkout session id.            |
 | `title`         | `Secure payment`           | Sheet header. The amount and seller are rendered by the page. |
 | `loadingLabel`  | `Loading secure checkout`  | The line under the spinner. Pass `''` for a spinner alone.    |

@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
 
 import { SuqoConfigError } from '../src/errors'
-import { buildCheckoutUrl, classifyNavigation, isAppHandoff } from '../src/urls'
+import {
+  buildCheckoutUrl,
+  classifyNavigation,
+  isAppHandoff,
+  LIVE_ORIGIN,
+  resolveBaseUrl,
+  SANDBOX_ORIGIN,
+} from '../src/urls'
 
 describe('buildCheckoutUrl', () => {
   it('builds the default embedded checkout route', () => {
@@ -47,6 +54,23 @@ describe('buildCheckoutUrl', () => {
 
   it('refuses a blank subscription id', () => {
     expect(() => buildCheckoutUrl('https://test.suqo.ai', '  ')).toThrow(SuqoConfigError)
+  })
+})
+
+describe('resolveBaseUrl', () => {
+  it('defaults to the sandbox origin when neither baseUrl nor mode is given', () => {
+    expect(resolveBaseUrl(undefined)).toBe(SANDBOX_ORIGIN)
+    expect(resolveBaseUrl(undefined, undefined)).toBe(SANDBOX_ORIGIN)
+  })
+
+  it('picks the origin for mode when no explicit baseUrl is given', () => {
+    expect(resolveBaseUrl(undefined, 'live')).toBe(LIVE_ORIGIN)
+    expect(resolveBaseUrl(undefined, 'sandbox')).toBe(SANDBOX_ORIGIN)
+    expect(resolveBaseUrl('', 'live')).toBe(LIVE_ORIGIN)
+  })
+
+  it('lets an explicit baseUrl override mode', () => {
+    expect(resolveBaseUrl('http://localhost:8787', 'live')).toBe('http://localhost:8787')
   })
 })
 
