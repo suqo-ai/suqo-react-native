@@ -3,6 +3,11 @@
 Collect a SUQO payment on a full-screen checkout screen. No gateway integration, no payment
 UI to build.
 
+[docs/usage.md](./docs/usage.md) covers the same ground as this README with more detail —
+every `onEvent` shape, the full options table, and troubleshooting. The wire protocol this
+package implements against the SUQO web app is `js-checkout/docs/protocol.md` in the
+`js-checkout` repo.
+
 ```
 npm install @suqo/react-native react-native-webview
 ```
@@ -76,6 +81,13 @@ if (outcome.result === 'success') {
 }
 ```
 
+`useSuqoCheckout()` also returns `close()`, which dismisses the sheet as though the buyer
+closed it — a no-op if nothing is open. It settles the open session as `{ result: 'closed' }`,
+the same outcome the back button produces, so a caller driving both sees one consistent shape
+regardless of who ended it. A verified result that arrives a moment later still wins over an
+earlier `close()` — the page already confirmed the payment with the backend by then, and
+reporting `closed` would tell the app nothing happened while the buyer's money moved.
+
 ### There is nothing about the buyer here
 
 A checkout session is created on your own backend with your API key, and it already carries
@@ -104,6 +116,15 @@ normalising would throw away the only field you can match on.
 so our keys never mix into `params`, and it is `undefined` when the backend said nothing —
 so it is never copy this SDK invented. On a failure it is usually the only place the reason
 exists.
+
+### A session that can't be paid at all is not a failure
+
+There is no `onUnavailable` callback. When the session is `'not-found'`, `'expired'`,
+`'spent'`, `'no-customer'`, `'no-methods'` or failed to `'load-failed'`, the page shows its own
+explanation and the buyer dismisses the sheet, which settles as `onClose` — routing it through
+`onFailure` would claim a payment was attempted and rejected when none was. Pass `onEvent` and
+watch for `{ type: 'unavailable', reason }` if you want to know *why* in your own logs; it is
+usually a sign the session itself was created wrong.
 
 ## The outcome is a signal to navigate, not proof of fulfilment
 

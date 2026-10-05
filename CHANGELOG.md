@@ -6,6 +6,14 @@ All notable changes to `@suqo/react-native` are documented here. The format foll
 
 ## [Unreleased]
 
+### Documentation
+
+- `docs/usage.md` — a merchant/integrator-facing guide covering the full `onEvent` surface,
+  the options table, and troubleshooting by error-panel copy. Mirrors `js-checkout`'s
+  `docs/usage.md` in shape.
+- README: documented `close()` (returned by `useSuqoCheckout()` but previously unmentioned),
+  the `unavailable` event and why it isn't a callback, and linked the new usage guide.
+
 ### Added
 
 - `mode` prop on `SuqoProvider`: `'live'` resolves to `app.suqo.ai`, `'sandbox'` (the default)
