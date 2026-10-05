@@ -16,6 +16,13 @@ belong to the page inside the WebView. The session id is the only thing this pac
 single-use, short-lived, and carrying no buyer details of its own — so nothing sensitive and
 nothing long-lived ever sits in your app bundle.
 
+**The session must already have a customer assigned when you create it.** This package has no
+way to attach one — there is no buyer-detail field anywhere on `open()` — so a session created
+without one mounts the sheet, shows the page's own "can't be paid" explanation, and reports
+`onEvent({ type: 'unavailable', reason: 'no-customer' })` rather than ever reaching a payable
+state. Assign the customer on your backend, through the checkout-session API, before you hand
+the id to `open()`.
+
 ```
 npm install @suqo/react-native react-native-webview
 ```
@@ -79,9 +86,11 @@ if (outcome.result === 'success') {
 
 ## There is nothing about the buyer here
 
-The checkout session is created on your own backend with your API key, and it already carries
-the buyer — their name, email and address never pass through this SDK, never reach the device,
-and never end up in a log. There is nothing for you to validate before opening the sheet.
+The checkout session is created on your own backend with your API key, and it must already
+carry the buyer by the time you pass its id to `open()` — their name, email and address never
+pass through this SDK, never reach the device, and never end up in a log, because there is
+nothing for you to validate or supply here. Create the session with a customer attached; this
+package cannot attach one for you.
 
 `open()` rejects **before the sheet appears**, for exactly two reasons: a checkout is already
 open, or the session id and base URL cannot produce a checkout URL.
@@ -190,7 +199,9 @@ page renders its own explanation and the buyer dismisses the sheet, which settle
 Routing it through `onFailure` would tell your app a payment was attempted and rejected, when
 none was. Catch it via `onEvent({ type: 'unavailable', reason })` if you want to log *why* a
 buyer saw an empty sheet — it is usually a sign your own integration created the session wrong
-(most often an expired or already-used id).
+(most often an expired or already-used id, or — specific to this SDK — `'no-customer'`: the
+session was created with no buyer attached, which this package has no field to supply after
+the fact).
 
 ## Environments and exports
 

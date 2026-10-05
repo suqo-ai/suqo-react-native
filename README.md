@@ -28,6 +28,11 @@ to the page inside the WebView. The session id is the only thing this package kn
 single-use, short-lived, and carries no buyer details of its own, so nothing sensitive and
 nothing long-lived ever sits in your app bundle.
 
+**Create the session with a customer already attached.** There is no field anywhere on `open()`
+for one — this package cannot attach a buyer after the fact. A session created without one
+mounts the sheet, shows the page's own "can't be paid" explanation, and reports
+`onEvent({ type: 'unavailable', reason: 'no-customer' })` rather than ever becoming payable.
+
 ## Usage
 
 Mount the provider once, at your app root:

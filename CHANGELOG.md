@@ -13,6 +13,10 @@ All notable changes to `@suqo/react-native` are documented here. The format foll
   `docs/usage.md` in shape.
 - README: documented `close()` (returned by `useSuqoCheckout()` but previously unmentioned),
   the `unavailable` event and why it isn't a callback, and linked the new usage guide.
+- README and `docs/usage.md`: state plainly that the checkout session must already carry a
+  customer when created — this package has no field to attach one, so a session created
+  without one surfaces as `onEvent({ type: 'unavailable', reason: 'no-customer' })` rather than
+  ever becoming payable.
 
 ### Added
 
