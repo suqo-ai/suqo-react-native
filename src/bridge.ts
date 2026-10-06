@@ -190,6 +190,14 @@ export function parseInbound(raw: string): InboundMessage | null {
     // `suqo:redirect` lands here and is dropped, correctly. It exists for a plain WebView that
     // injects no bridge at all; under this SDK the page always sees a native host, opens the
     // gateway in this same window, and never asks anyone to navigate on its behalf.
+    //
+    // `suqo:intent` lands here too, also correctly. It exists for the browser SDK, where the
+    // checkout frame is sandboxed and cannot navigate the merchant's page itself — so it asks
+    // the host to forward a deeplink to the merchant's own code instead. Nothing here is
+    // sandboxed: this WebView already navigates to a bank/wallet deeplink in the same window,
+    // and `react-native-webview`'s own navigation interception (`classifyNavigation` in
+    // `urls.ts`) lifts it to `Linking.openURL` without anyone having to ask. Handling this
+    // message too would be a second, redundant path to the same OS picker.
     default:
       return null
   }

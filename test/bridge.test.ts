@@ -42,6 +42,16 @@ describe('parseInbound', () => {
     expect(parseInbound(envelope({ type: 'suqo:redirect', url: 'https://x.test/y' }))).toBeNull()
   })
 
+  it('drops suqo:intent, which cannot apply to this host', () => {
+    // It exists for the browser SDK, whose sandboxed frame cannot navigate the merchant's
+    // page itself. This WebView already navigates to a deeplink in the same window, and
+    // react-native-webview's own navigation interception lifts it to Linking.openURL — so
+    // acting on this message too would be a second, redundant path to the same OS picker.
+    expect(
+      parseInbound(envelope({ type: 'suqo:intent', url: 'intent://payment/#Intent;end' }))
+    ).toBeNull()
+  })
+
   it('parses the lifecycle messages', () => {
     expect(parseInbound(envelope({ type: 'suqo:alive' }))).toEqual({ type: 'suqo:alive' })
     expect(parseInbound(envelope({ type: 'suqo:ready' }))).toEqual({ type: 'suqo:ready' })

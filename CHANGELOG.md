@@ -8,6 +8,13 @@ All notable changes to `@suqo/react-native` are documented here. The format foll
 
 ### Documentation
 
+- `suqo:intent` (the browser SDK's bank-app deeplink message) is now named explicitly in
+  `parseInbound`'s drop comment, alongside `suqo:redirect`, instead of only being covered by
+  the generic unrecognised-type default — same behaviour (still dropped), clearer why. It
+  cannot apply here: this WebView already navigates to a deeplink in the same window, and
+  `react-native-webview`'s own navigation interception lifts it to `Linking.openURL` without
+  anyone having to ask.
+
 - `docs/usage.md` — a merchant/integrator-facing guide covering the full `onEvent` surface,
   the options table, and troubleshooting by error-panel copy. Mirrors `js-checkout`'s
   `docs/usage.md` in shape.
