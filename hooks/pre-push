@@ -1,0 +1,58 @@
+#!/bin/sh
+# Pre-push gate. Installed into .git/hooks/ by scripts/install-git-hooks.mjs (the "prepare"
+# script) -- this file is the tracked source of truth, not .git/hooks/pre-push.
+
+# stdin is one line per ref being pushed: <local ref> <local sha> <remote ref> <remote sha>
+pushes_code=false
+pushed_shas=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # main is PR-only: the release train opens release PRs against it and tags what gets merged.
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "pre-push: pushing to main is blocked. Use a branch and open a PR."
+    exit 1
+  fi
+  # Only a branch update sends code. A deletion has an all-zero local sha, and tags aren't gated.
+  case "$remote_ref" in
+    refs/heads/*)
+      case "$local_sha" in
+        *[!0]*)
+          pushes_code=true
+          pushed_shas="$pushed_shas $local_sha"
+          ;;
+      esac
+      ;;
+  esac
+done
+
+if [ "$pushes_code" = false ]; then
+  exit 0
+fi
+
+# The checks run on the working tree, not on the pushed commits themselves (checking those would
+# mean a separate checkout on every push). Say so when the two can differ.
+head_sha=$(git rev-parse HEAD)
+for sha in $pushed_shas; do
+  if [ "$sha" != "$head_sha" ]; then
+    echo "pre-push: warning: pushing $sha, but the checks run on the checked-out HEAD ($head_sha)."
+  fi
+done
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+  echo "pre-push: warning: uncommitted changes. The checks see them, the push doesn't."
+fi
+
+# The same checks CI runs, so a failure costs a re-push rather than a red PR.
+set -e
+
+echo "pre-push: typecheck"
+npm run --silent typecheck
+
+echo "pre-push: test"
+npm run --silent test
+
+echo "pre-push: lint"
+npm run --silent lint
+
+echo "pre-push: build"
+npm run --silent build
+
+echo "pre-push: all checks passed"

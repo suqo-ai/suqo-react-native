@@ -25,4 +25,4 @@ export type {
 } from './types'
 
 /** This package's version, as published. */
-export const VERSION = '0.2.0'
+export const VERSION = '0.0.1'

@@ -1,8 +1,8 @@
 {
   "name": "@suqo/react-native",
-  "version": "0.2.0",
+  "version": "0.0.1",
   "description": "Collect a SUQO payment in a React Native bottom sheet. No gateway integration required.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Code-Pros-AI/suqo-react-native.git"
+    "url": "git+https://github.com/suqo-ai/suqo-react-native.git"
   },
   "keywords": [
     "suqo",
@@ -51,7 +51,8 @@
     "test:watch": "vitest",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+    "prepare": "node scripts/install-git-hooks.mjs",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run lint && npm run build"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
