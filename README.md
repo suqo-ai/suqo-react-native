@@ -224,6 +224,9 @@ cd example && npm install && npx expo start
 
 The example runs with **no backend at all** — see `example/README.md`.
 
+`npm install` also installs a pre-push hook that blocks pushes to `main` and runs the checks
+above. Releases are cut from conventional commits by a release PR; see [RELEASING.md](RELEASING.md).
+
 ## License
 
 Apache-2.0
