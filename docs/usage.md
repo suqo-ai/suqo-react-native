@@ -53,26 +53,38 @@ somewhere else entirely (a staging mirror, a local mock server); it overrides `m
 Then open a payment from anywhere below it:
 
 ```tsx
+import { useState } from 'react'
+import { Button, Text } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import { useSuqoCheckout } from '@suqo/react-native'
 
-function PayButton({ sessionId }) {
+function PayButton({ sessionId }: { sessionId: string }) {
   const { open } = useSuqoCheckout()
+  const navigation = useNavigation()
+  const [error, setError] = useState<string | null>(null)
 
   return (
-    <Button
-      title="Pay"
-      onPress={() =>
-        open({
-          sessionId,
-          onSuccess: ({ params, message }) => navigation.replace('Receipt', { params }),
-          onFailure: ({ status, message }) => setError(status === 'cancelled' ? null : message),
-          onClose: () => {},
-        })
-      }
-    />
+    <>
+      <Button
+        title="Pay"
+        onPress={() =>
+          open({
+            sessionId,
+            onSuccess: ({ params }) => navigation.replace('Receipt', { params }),
+            onFailure: ({ status, message }) =>
+              setError(status === 'cancelled' ? null : (message ?? 'Payment failed')),
+            onClose: () => {},
+          })
+        }
+      />
+      {error && <Text>{error}</Text>}
+    </>
   )
 }
 ```
+
+`navigation` here is React Navigation; use whatever your app navigates with — the SDK does
+not depend on it.
 
 **Exactly one of the three callbacks fires per `open()`.** `open()` also resolves with the
 outcome, if you prefer `await` to callbacks:
@@ -134,8 +146,8 @@ ConnectIPS a `TXNID`, NPS a `MerchantTxnId`. `params` is passed through with no 
 filtering, because you reconcile against whatever your own backend recorded, and normalising
 would throw away the only field you can match on.
 
-`message` is what SUQO's backend said when it settled the payment — a separate argument so our
-keys never mix into `params`. It is `undefined` when the backend said nothing, so it is never
+`message` is what SUQO's backend said when it settled the payment — a field on the result
+object (`result.message`), kept apart from `params` so our keys never mix into the gateway's. It is `undefined` when the backend said nothing, so it is never
 copy this SDK invented; on a failure it is usually the only place the reason exists.
 
 ## The outcome is a signal to navigate, not proof of fulfilment
@@ -167,10 +179,21 @@ default, not a solved problem.
 If your app already has `react-native-safe-area-context`, pass real values:
 
 ```tsx
-const insets = useSafeAreaInsets()
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SuqoProvider } from '@suqo/react-native'
 
-<SuqoProvider baseUrl={…} insets={{ top: insets.top, bottom: insets.bottom }}>
+function Root() {
+  const insets = useSafeAreaInsets()
+
+  return (
+    <SuqoProvider mode="sandbox" insets={{ top: insets.top, bottom: insets.bottom }}>
+      <Navigation />
+    </SuqoProvider>
+  )
+}
 ```
+
+Render `Root` inside a `SafeAreaProvider`, as `react-native-safe-area-context` requires.
 
 ### `onEvent` — every shape it can send
 
@@ -227,7 +250,9 @@ supported bank, which runs well past a phone screen.
 
 It is presented as a full-screen `Modal`, not a route in your navigator — nothing to register,
 no route name to agree on — and it still behaves like a pushed screen, including Android's
-hardware back button. Back, hardware back, or `close()` all dismiss it and report `onClose`.
+hardware back button. Back, hardware back, or `close()` all dismiss it and report `onClose` —
+unless the page had already verified a payment, in which case that result is delivered instead
+(see [Programmatic API](#programmatic-api)).
 
 When the buyer's bank needs its own app, the screen hands the deeplink to the OS and the bank
 app opens over yours. Coming back leaves the screen exactly as it was, mid-payment.
@@ -235,7 +260,8 @@ app opens over yours. Coming back leaves the screen exactly as it was, mid-payme
 ## Troubleshooting
 
 **The sheet shows an error panel instead of the payment block.**
-One of three load deadlines elapsed — the copy tells you which:
+Either the WebView itself failed to load the page, or one of two load deadlines elapsed — the
+copy tells you which:
 
 | Panel says | Deadline | Likely cause |
 | --- | --- | --- |
@@ -255,9 +281,9 @@ was actually created against.
 
 **The buyer paid but the app shows `cancelled`.**
 Should not happen: the page only reports `cancelled` from the gateway's own return URL, never
-from the WebView closing. If you see it, confirm the checkout page itself is up to date with
-`js-checkout`'s protocol (`§5.14` — a closed gateway window is not treated as an outcome) rather
-than assuming this SDK invented the status.
+from the WebView closing. If you see it, check that the SUQO checkout page you are pointing at
+is current (a closed gateway window must not be treated as an outcome) rather than assuming
+this SDK invented the status, and contact SUQO support with the session id if it persists.
 
 **Nothing comes back at all; the sheet just sits there.**
 The checkout page is not recognising this as a native host — confirm it still checks for
