@@ -70,7 +70,7 @@ function PayButton({ sessionId }: { sessionId: string }) {
         onPress={() =>
           open({
             sessionId,
-            onSuccess: ({ params }) => navigation.replace('Receipt', { params }),
+            onSuccess: ({ params }) => navigation.navigate('Receipt', { params }),
             onFailure: ({ status, message }) =>
               setError(status === 'cancelled' ? null : (message ?? 'Payment failed')),
             onClose: () => {},
