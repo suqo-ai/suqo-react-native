@@ -56,8 +56,33 @@ const CHECKOUT = page(
      Grow the block (like the NPS bank picker)
    </button>
    <div id="extra">The sheet should have grown to fit this, not scrolled it.</div>
-   <a class="btn alt" href="fonepayApp://payment/?emandate=abc%3D%3D">Open a bank app (deeplink)</a>`,
+   <a class="btn alt" href="fonepayApp://payment/?emandate=abc%3D%3D">Open a bank app (deeplink)</a>
+   <a class="btn alt" href="intent://pay/?q=1#Intent;scheme=suqoexample;package=ai.suqo.sdkexample;end">intent:// via link (gesture)</a>
+   <button class="btn alt" onclick="goIntent()">intent:// sync in onclick (gesture)</button>
+   <button class="btn alt" onclick="goIntentAfterAwait()">intent:// after await (gesture expired)</button>
+   <button class="btn alt" onclick="goFonepayIntent()">intent:// Fonepay (mixed-case scheme)</button>`,
   `
+  // Three ways to reach the same intent:// URL, aimed at the example app's own scheme so a
+  // launch that works is visible: the app comes back to the front. Real Fonepay navigates
+  // the third way — inside an async handler, after awaiting /pay/ — so the user gesture
+  // that started it has already expired by the time the deeplink is assigned.
+  var INTENT_URL = 'intent://pay/?q=1#Intent;scheme=suqoexample;package=ai.suqo.sdkexample;end'
+  // The exact shape production Fonepay produces: an intent URL whose fragment names a
+  // MIXED-CASE scheme. Linking.openURL lowercases that and the launch fails; a launcher
+  // that sets the URI as written reaches the app.
+  var FONEPAY_INTENT =
+    'intent://payment/?qrPayload=probe#Intent;scheme=fonepayApp;package=com.fonepay.stage;end'
+  function goFonepayIntent() {
+    window.location.href = FONEPAY_INTENT
+  }
+  function goIntent() {
+    window.location.href = INTENT_URL
+  }
+  async function goIntentAfterAwait() {
+    await fetch('/noop').catch(function () {})
+    window.location.href = INTENT_URL
+  }
+
   // The real page posts alive from its layout, before the block has mounted.
   post({ type: 'suqo:alive' })
   window.addEventListener('load', function () {
@@ -115,6 +140,12 @@ const server = createServer((request, response) => {
 
   if (url.pathname.startsWith('/c/')) {
     return send(CHECKOUT)
+  }
+  // Awaited by the gesture-expired intent:// probe, so the navigation happens a round trip
+  // after the click rather than inside the handler.
+  if (url.pathname === '/noop') {
+    response.writeHead(200, { 'content-type': 'application/json' })
+    return response.end('{}')
   }
   if (url.pathname === '/gateway') {
     return send(gateway(params.outcome ?? 'success'))

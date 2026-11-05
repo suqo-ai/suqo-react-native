@@ -85,6 +85,9 @@ function shouldLoad(url: string, handlers: MutableRefObject<WebViewHandlers>): b
   const navigation = classifyNavigation(url)
 
   if (navigation.kind === 'handoff') {
+    // The first step of the handoff, logged here because a navigation the WebView never
+    // reports looks identical from further down: no lines at all.
+    log('nav.handoff', { scheme: navigation.scheme })
     handlers.current.onHandoff(url, navigation.scheme)
     return false
   }

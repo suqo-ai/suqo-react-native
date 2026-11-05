@@ -88,11 +88,15 @@ const SCHEME_RE = /^([a-z][a-z0-9+.-]*):/i
 /**
  * Classifies a navigation.
  *
- * The interesting case is `handoff`. ConnectIPS and NPS hand off to bank apps through
- * custom-protocol deeplinks (`fonepayApp://…`) and, on Android, `intent://` URLs. A WebView
- * resolves neither — an `intent://` navigation inside one simply fails, and an unhandled
- * custom scheme does nothing at all. Both have to be lifted out to `Linking.openURL`, which
- * is the single reason this function exists rather than the WebView being left to itself.
+ * The interesting case is `handoff`. Fonepay hands off to bank apps through custom-protocol
+ * deeplinks (`fonepayApp://…`) and, on Android, `intent://` URLs. A WebView resolves
+ * neither — an `intent://` navigation inside one simply fails, and an unhandled custom
+ * scheme does nothing at all. Both have to be lifted out to the OS, which is the single
+ * reason this function exists rather than the WebView being left to itself.
+ *
+ * Only the custom-scheme form reaches `Linking.openURL` as written. An `intent://` URL is
+ * rewritten first — React Native's `Linking` cannot launch one — by `intentTargets` in
+ * `handoff.ts`, which is where that whole story lives.
  *
  * Return pages are deliberately **allowed** to load. `/payment-success` is what posts the
  * verification call; intercepting it to read the outcome off the query string would skip

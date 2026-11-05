@@ -12,6 +12,7 @@ export { SuqoProvider } from './SuqoProvider'
 export type { SuqoProviderProps, SuqoCheckoutHandle } from './SuqoProvider'
 export { useSuqoCheckout } from './useSuqoCheckout'
 export { SuqoConfigError } from './errors'
+export type { OpenUrl } from './handoff'
 export { DEFAULT_CHECKOUT_PATH, LIVE_ORIGIN, SANDBOX_ORIGIN, resolveBaseUrl } from './urls'
 export type { CheckoutMode } from './urls'
 export type {
