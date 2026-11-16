@@ -1,6 +1,6 @@
 {
   "name": "@suqo/react-native",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Collect a SUQO payment in a React Native bottom sheet. No gateway integration required.",
   "license": "MIT",
   "type": "module",
