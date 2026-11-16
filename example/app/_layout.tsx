@@ -9,6 +9,7 @@ import type { CheckoutMode } from '@suqo/react-native'
 import { DEFAULT_BASE_URL } from '../src/config'
 import { EventLogProvider, useEventLog } from '../src/EventLog'
 import { BaseUrlContext } from '../src/base-url'
+import { openUrl } from '../src/openUrl'
 
 export default function RootLayout() {
   return (
@@ -44,6 +45,9 @@ function Providers() {
         insets={{ top: insets.top, bottom: insets.bottom }}
         debug
         onEvent={record}
+        // Android only, and only because Fonepay's app registers a mixed-case scheme that
+        // `Linking` lowercases out of existence. See `src/openUrl.ts`.
+        openUrl={openUrl}
       >
         <Stack
           screenOptions={{

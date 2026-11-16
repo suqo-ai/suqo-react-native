@@ -263,13 +263,15 @@ describe('the WebView', () => {
     expect(Linking.opened).toEqual(['fonepayApp://payment/?emandate=abc'])
   })
 
-  it('hands an Android intent url to the OS', async () => {
+  it('hands an Android intent url to the OS as the deeplink it names', async () => {
     mount()
     webView().onShouldStartLoadWithRequest?.({
       url: 'intent://payment/?emandate=x#Intent;scheme=fonepayApp;end',
     })
     await act(async () => {})
-    expect(Linking.opened).toHaveLength(1)
+    // Asserting the rewrite, not just the call count: `Linking` cannot launch `intent:`
+    // itself, so a length check passes while the buyer's bank app never opens.
+    expect(Linking.opened).toEqual(['fonepayApp://payment/?emandate=x'])
   })
 
   it('hands off even when canOpenURL says no', async () => {

@@ -13,6 +13,7 @@ import {
 import { buildDebugScript } from '../bridge'
 import type { InboundMessage } from '../bridge'
 import { openExternal } from '../handoff'
+import type { OpenUrl } from '../handoff'
 import { useSafeInsets } from '../insets'
 import { log } from '../log'
 import type { CheckoutSession, Settlement } from '../session'
@@ -52,6 +53,8 @@ interface Props {
   closeSignal: number
   /** Called once the screen has animated away and the outcome has been delivered. */
   onDismissed(): void
+  /** Replaces `Linking.openURL` for bank handoffs. See {@link OpenUrl}. */
+  openUrl?: OpenUrl
 }
 
 /**
@@ -72,6 +75,7 @@ export function CheckoutScreen({
   debug,
   closeSignal,
   onDismissed,
+  openUrl,
 }: Props) {
   const safeInsets = useSafeInsets(insets)
   const windowWidth = Dimensions.get('window').width
@@ -254,9 +258,15 @@ export function CheckoutScreen({
     onMessage: handleMessage,
     onHandoff: (handoffUrl, scheme) => {
       const current = sessionRef.current
-      if (!current) return
+      if (!current) {
+        // Logged rather than returning silently: without a line here, a handoff dropped
+        // for want of a session is indistinguishable from one that never arrived.
+        log('handoff.ignored', { scheme, reason: 'no active session' })
+        return
+      }
       onEvent?.({ type: 'handoff', sessionId: current.sessionId, scheme })
-      void openExternal(handoffUrl).then((opened) => {
+      void openExternal(handoffUrl, openUrl).then((opened) => {
+        log('handoff.result', { scheme, opened })
         if (opened) return
         onEvent?.({ type: 'handoff_failed', sessionId: current.sessionId, scheme })
       })

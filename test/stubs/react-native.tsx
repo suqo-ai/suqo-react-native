@@ -56,18 +56,27 @@ export const Linking = {
   opened: [] as string[],
   canOpenURLResult: true,
   openURLError: null as Error | null,
+  /**
+   * URLs this stub refuses, as the OS refuses one with no installed handler.
+   *
+   * `openURLError` fails every call, which cannot express the case the candidate list
+   * exists for: a deeplink that no app claims, followed by a fallback that opens.
+   */
+  failUrls: [] as string[],
   canOpenURL: async (url: string) => {
     void url
     return Linking.canOpenURLResult
   },
   openURL: async (url: string) => {
     if (Linking.openURLError) throw Linking.openURLError
+    if (Linking.failUrls.includes(url)) throw new Error(`no activity found for ${url}`)
     Linking.opened.push(url)
   },
   reset: () => {
     Linking.opened = []
     Linking.canOpenURLResult = true
     Linking.openURLError = null
+    Linking.failUrls = []
   },
 }
 

@@ -2,6 +2,7 @@ import { createContext, useCallback, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { SuqoConfigError } from './errors'
+import type { OpenUrl } from './handoff'
 import { setDebug } from './log'
 import type { CheckoutSession } from './session'
 import { createSession } from './session'
@@ -44,6 +45,15 @@ export interface SuqoProviderProps {
   debug?: boolean
   /** A debug stream for the host's own logging. Not a payment signal — the callbacks are. */
   onEvent?: (event: SuqoEvent) => void
+  /**
+   * Replaces `Linking.openURL` when a bank or wallet app is launched.
+   *
+   * Needed only on Android, and only for a bank whose app registers a mixed-case scheme:
+   * `Linking` lowercases the scheme and IntentFilter matching is case-sensitive, so such an
+   * app cannot be reached through it. See {@link OpenUrl} for what an implementation must
+   * do. Leave unset and the launch goes through `Linking` as before.
+   */
+  openUrl?: OpenUrl
   children: ReactNode
 }
 
@@ -84,6 +94,7 @@ export function SuqoProvider({
   insets,
   debug = false,
   onEvent,
+  openUrl,
   children,
 }: SuqoProviderProps) {
   // Applied during render rather than in an effect so a log from the first `open()` in a
@@ -155,6 +166,7 @@ export function SuqoProvider({
         closeSignal={closeSignal}
         {...(insets ? { insets } : {})}
         {...(onEvent ? { onEvent } : {})}
+        {...(openUrl ? { openUrl } : {})}
         onDismissed={onDismissed}
       />
     </SuqoContext.Provider>
